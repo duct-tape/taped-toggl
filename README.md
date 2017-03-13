@@ -3,7 +3,7 @@ Duct Taped Toggl.com API client
 
 #Usage
 ```python
-from tapedtoggl import TapedToggl, TapedTogglException
+from tapedtoggl import TapedToggl
 import datetime
 
 toggl = TapedToggl('xxx') # xxx is api key
