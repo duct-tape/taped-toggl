@@ -85,7 +85,7 @@ class TapedToggl:
                     (toggle_page - 1) * toggl_per_page + len(r.json()['data'])
                 )
 
-            return {'total_count': total_count, 'data': result_list}
+            return result_list
         except TapedToggl.TapedTogglException:
             return None
 
