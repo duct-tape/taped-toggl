@@ -68,7 +68,7 @@ class TapedToggl:
                 # calc new applicable page to fetch
                 target_index = per_page * (page - 1) + len(result_list)
                 if target_index >= total_count:
-                    raise IndexError("Requested page out of max count of entries {}".format(total_count))
+                    break  # Requested page out of max count of entries
                 toggle_page = target_index // toggl_per_page + 1
                 params = self.__get_params_for_details(
                     workspace_id=workspace_id,
