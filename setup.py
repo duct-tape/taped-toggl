@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='tapedtoggl',
-    version='0.0.1',
+    version='0.0.2',
     description=(
         "Toggl API wrapper."
     ),
