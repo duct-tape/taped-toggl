@@ -1,4 +1,5 @@
 import requests
+import urllib.parse
 
 
 class TapedToggl:
@@ -21,12 +22,21 @@ class TapedToggl:
         self.user_agent = TapedToggl.USER_AGENT
         self.error = None
 
-    def get_workspaces(self):
+    def __query_get_or_none(self, *args, **kwargs):
         try:
-            r = self.__request_get(TapedToggl.WORKSPACES_ENDPOINT, auth=(self.token, 'api_token'), headers=self.__get_headers())
+            r = self.__request_get(*args, **kwargs)
             return r.json()
         except TapedToggl.TapedTogglException:
             return None
+
+    def get_workspaces(self):
+        return self.__query_get_or_none(TapedToggl.WORKSPACES_ENDPOINT)
+
+    def get_workspace_projects(self, workspace_id):
+        return self.__query_get_or_none(self.WORKSPACES_ENDPOINT + '/' + str(workspace_id) + '/projects')
+
+    def get_workspace_clients(self, workspace_id):
+        return self.__query_get_or_none(self.WORKSPACES_ENDPOINT + '/' + str(workspace_id) + '/clients')
 
     def get_detailed_report(self, workspace_id, since=None, until=None, client_ids=None, project_ids=None):
         """
@@ -49,8 +59,7 @@ class TapedToggl:
                 client_ids=client_ids,
                 project_ids=project_ids
             )
-            r = self.__request_get(TapedToggl.DETAILS_ENDPOINT, auth=(self.token, 'api_token'),
-                                   headers=self.__get_headers(), params=params)
+            r = self.__request_get(TapedToggl.DETAILS_ENDPOINT, params=params)
             toggl_per_page = r.json()['per_page']
             total_count = r.json()['total_count']
             range_fetched = (0, toggl_per_page)
@@ -78,8 +87,7 @@ class TapedToggl:
                     project_ids=project_ids,
                     page=toggle_page
                 )
-                r = self.__request_get(TapedToggl.DETAILS_ENDPOINT, auth=(self.token, 'api_token'),
-                                       headers=self.__get_headers(), params=params)
+                r = self.__request_get(TapedToggl.DETAILS_ENDPOINT, params=params)
                 range_fetched = (
                     (toggle_page - 1) * toggl_per_page,
                     (toggle_page - 1) * toggl_per_page + len(r.json()['data'])
@@ -91,7 +99,12 @@ class TapedToggl:
 
     def __request_get(self, endpoint, **kwargs):
         self.error = None
-        r = requests.get(endpoint, **kwargs)
+        request_kwargs = {
+            'headers': self.__get_headers(),
+            'auth': (self.token, 'api_token'),
+        }
+        request_kwargs.update(kwargs)
+        r = requests.get(endpoint, **request_kwargs)
         if r.status_code // 100 != 2:
             self.error = (r.status_code, r.reason)
             raise TapedToggl.TapedTogglException(r.reason, r.status_code)
