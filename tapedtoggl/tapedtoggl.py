@@ -1,4 +1,5 @@
 import requests
+import logging
 import urllib.parse
 
 
@@ -107,6 +108,8 @@ class TapedToggl:
         r = requests.get(endpoint, **request_kwargs)
         if r.status_code // 100 != 2:
             self.error = (r.status_code, r.reason)
+            logging.warning('Toggl error response:{} in request to {} with {}.'.format(self.error, endpoint,
+                                                                                       request_kwargs))
             raise TapedToggl.TapedTogglException(r.reason, r.status_code)
         return r
 
